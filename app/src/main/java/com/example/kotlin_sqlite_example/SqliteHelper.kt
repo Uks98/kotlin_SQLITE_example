@@ -1,5 +1,6 @@
 package com.example.kotlin_sqlite_example
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -31,6 +32,25 @@ class SqliteHelper(context : Context, name : String, version : Int) : SQLiteOpen
         val wd = writableDatabase
         wd.insert("memo",null,values)
         wd.close() //사용한 후 닫아주기
+    }
+    @SuppressLint("Range")
+    fun selectMemo(): MutableList<Memo>{
+        val list = mutableListOf<Memo>()
+        val select = "select * from memo"
+        var rd = readableDatabase
+        //row query담아서 실행시 커서형태로 값이 변환된다
+        //커서란? : 데이터 셋을 처리할때 현재 위치를 포함하는 데이터 요소
+        //커서 사용 시 반복문을 통해 하나씩 처리가능하다.
+        val cursor = rd.rawQuery(select,null)
+        while (cursor.moveToNext()){
+            val no = cursor.getLong(cursor.getColumnIndex("num"))
+            val content = cursor.getString(cursor.getColumnIndex("content"))
+            val datetime = cursor.getLong(cursor.getColumnIndex("datetime"))
+            list.add(Memo(no, content, datetime))
+        }
+        cursor.close()
+        rd.close()
+        return list
     }
 }
 
